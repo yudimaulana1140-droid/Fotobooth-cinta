@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photobooth Cinta - Momen Romantis Kita</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=scale" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Animated Floating Hearts Background -->
+    <ul class="hearts-bg" id="heartsBgContainer"></ul>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="header-content">
+            <div class="brand">
+                <div class="brand-icon">♥</div>
+                <div class="brand-text">
+                    <h1>Photobooth Cinta</h1>
+                    <p>Abadikan Momen Manis Kita</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="soundToggleBtn" onclick="toggleAudio()" title="Efek Suara">🔊</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main>
+        <!-- LEFT COLUMN: Live Camera & Controls -->
+        <section class="camera-section">
+            <div class="card">
+                <!-- Viewfinder Canvas Area -->
+                <div class="viewfinder-wrapper">
+                    <video id="webcamVideo" autoplay playsinline class="filter-normal"></video>
+                    
+                    <!-- Camera Placeholder State -->
+                    <div class="camera-placeholder" id="cameraPlaceholder">
+                        <div class="camera-placeholder-icon">📷</div>
+                        <h3>Kamera Belum Aktif</h3>
+                        <p class="placeholder-text">Klik tombol di bawah untuk mengizinkan kamera webcam.</p>
+                        <button class="btn-primary btn-camera-activate" onclick="startCamera()">
+                            Aktifkan Kamera
+                        </button>
+                    </div>
+
+                    <!-- Countdown & Flash Visual Overlays -->
+                    <div class="countdown-overlay hidden" id="countdownOverlay">
+                        <div class="countdown-number" id="countdownNumber">3</div>
+                    </div>
+                    <div class="flash-overlay" id="flashOverlay"></div>
+                </div>
+
+                <!-- Camera Toolbar Controls -->
+                <div class="controls-toolbar">
+                    <!-- Timer Selector -->
+                    <div class="control-group">
+                        <label>Timer:</label>
+                        <div class="timer-options">
+                            <button class="btn-timer active" id="timer3Btn" onclick="setTimer(3)">3s</button>
+                            <button class="btn-timer" id="timer5Btn" onclick="setTimer(5)">5s</button>
+                        </div>
+                    </div>
+
+                    <!-- Layout Mode Selector -->
+                    <div class="control-group">
+                        <label>Mode Foto:</label>
+                        <select id="layoutSelect" onchange="changeLayout(this.value)">
+                            <option value="strip3">Photo Strip (3 Foto)</option>
+                            <option value="grid4">Grid 2x2 (4 Foto)</option>
+                            <option value="single">Single Frame (1 Foto)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Capture Main Trigger Button -->
+                <button class="btn-primary btn-capture-main" id="captureBtn" onclick="startCaptureSequence()">
+                    <span>📷</span>
+                    <span id="captureBtnText">Ambil Foto (3 Shot)</span>
+                </button>
+            </div>
+
+            <!-- Filters Section Card -->
+            <div class="card">
+                <label class="filter-label">
+                    ✨ Filter Warna Real-Time:
+                </label>
+                <div class="filter-pills">
+                    <button class="btn-filter active" onclick="applyFilter('filter-normal', event)">Normal</button>
+                    <button class="btn-filter" onclick="applyFilter('filter-pink', event)">Sweet Pink 💕</button>
+                    <button class="btn-filter" onclick="applyFilter('filter-warm', event)">Romance Warm ☀️</button>
+                    <button class="btn-filter" onclick="applyFilter('filter-vintage', event)">Retro Vintage 🎞️</button>
+                    <button class="btn-filter" onclick="applyFilter('filter-bw', event)">Classic B&W 🖤</button>
+                    <button class="btn-filter" onclick="applyFilter('filter-glow', event)">Heart Glow ✨</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: Photo Strip Result & Decorator -->
+        <section class="preview-section">
+            <div class="card">
+                <h2 class="section-title">
+                    <span>🖼️</span> Preview Photo Strip
+                </h2>
+
+                <!-- Dynamic Photo Strip Container -->
+                <div class="strip-wrapper">
+                    <!-- Empty State Message -->
+                    <div class="empty-placeholder" id="emptyPlaceholder">
+                        <div class="empty-placeholder-icon">💖</div>
+                        <p class="empty-title">Belum Ada Foto</p>
+                        <p class="empty-desc">Klik "Ambil Foto" untuk memulai pose romantis Anda!</p>
+                    </div>
+
+                    <!-- Rendered Photo Strip Card -->
+                    <div class="photo-strip-card strip-theme-pink hidden" id="photoStripCard">
+                        <div class="strip-header">
+                            <h3 id="stripTitleText">Love Story</h3>
+                            <p>SWEET MEMORIES</p>
+                        </div>
+
+                        <!-- Dynamic Photo Grid Slots -->
+                        <div class="photos-grid" id="photosGrid"></div>
+
+                        <!-- Footer Text Note & Date -->
+                        <div class="strip-footer">
+                            <div class="love-note-text" id="previewNoteText">Momen Manis Bersamamu</div>
+                            <div class="date-stamp-text" id="previewDateText">07.10.2026</div>
+                        </div>
+
+                        <!-- Draggable Stickers Layer Overlay -->
+                        <div class="stickers-layer" id="stickersLayer"></div>
+                    </div>
+                </div>
+
+                <!-- Strip Customization Controls -->
+                <div class="hidden customization-controls" id="customizationControls">
+                    <!-- Title & Date Stamp Custom Inputs -->
+                    <div class="input-grid">
+                        <div>
+                            <label class="control-label">Judul Frame:</label>
+                            <input type="text" id="titleInput" value="Love Story" oninput="updateFrameTitle(this.value)" class="input-text">
+                        </div>
+                        <div>
+                            <label class="control-label">Pesan Cinta:</label>
+                            <input type="text" id="noteInput" value="Momen Manis Bersamamu" oninput="updateLoveNote(this.value)" class="input-text">
+                        </div>
+                    </div>
+
+                    <!-- Theme Frame Border Color Selector -->
+                    <div>
+                        <label class="control-label label-mb">Warna Border Frame:</label>
+                        <div class="color-options">
+                            <div class="color-circle active" style="background: #f472b6;" onclick="setFrameTheme('strip-theme-pink', this)"></div>
+                            <div class="color-circle" style="background: #f43f5e;" onclick="setFrameTheme('strip-theme-red', this)"></div>
+                            <div class="color-circle" style="background: #fbcfe8;" onclick="setFrameTheme('strip-theme-pastel', this)"></div>
+                            <div class="color-circle" style="background: #ffffff;" onclick="setFrameTheme('strip-theme-white', this)"></div>
+                            <div class="color-circle" style="background: #1e1b2e;" onclick="setFrameTheme('strip-theme-dark', this)"></div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Stickers Palette -->
+                    <div>
+                        <div class="sticker-header">
+                            <label class="control-label">Tambah Stiker Cinta (Klik & Geser):</label>
+                            <button onclick="clearStickers()" class="btn-reset-stickers">Reset Stiker</button>
+                        </div>
+                        <div class="sticker-palette">
+                            <div class="sticker-item" onclick="addSticker('❤️')">❤️</div>
+                            <div class="sticker-item" onclick="addSticker('💖')">💖</div>
+                            <div class="sticker-item" onclick="addSticker('💋')">💋</div>
+                            <div class="sticker-item" onclick="addSticker('👑')">👑</div>
+                            <div class="sticker-item" onclick="addSticker('🌹')">🌹</div>
+                            <div class="sticker-item" onclick="addSticker('💍')">💍</div>
+                            <div class="sticker-item" onclick="addSticker('✨')">✨</div>
+                            <div class="sticker-item" onclick="addSticker('💌')">💌</div>
+                        </div>
+                    </div>
+
+                    <!-- Export Actions Button -->
+                    <button class="btn-primary btn-export" onclick="downloadPhotoStripHD()">
+                        <span>⬇️</span> Unduh Foto Strip (PNG HD)
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Hidden Export Canvas for Image Generation -->
+    <canvas id="exportCanvas" class="hidden"></canvas>
+
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
+</body>
+</html>
